@@ -776,7 +776,7 @@ def detect_and_render_formulas(text):
     return text
 
 def main():
-    # Add custom CSS for the chat file upload
+    # Add custom CSS and auto-scroll JavaScript for the chat
     st.markdown("""
     <style>
         /* Styling for the upload box */
@@ -833,6 +833,40 @@ def main():
             border-color: #4A90E2;
         }
     </style>
+    
+    <script>
+        // Auto-scroll function to scroll to bottom of chat container
+        function scrollToBottom() {
+            const chatContainer = document.querySelector('.stChatContainer');
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+        
+        // Call scrollToBottom when messages are added/updated
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length || mutation.type === 'childList') {
+                    scrollToBottom();
+                }
+            });
+        });
+        
+        // Start observing the chat container for changes
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const chatContainer = document.querySelector('.stChatContainer');
+                if (chatContainer) {
+                    observer.observe(chatContainer, { childList: true, subtree: true });
+                    scrollToBottom();
+                }
+            }, 500);  // Small delay to ensure the DOM is fully loaded
+        });
+        
+        // Also try to scroll when the window loads and resizes
+        window.addEventListener('load', scrollToBottom);
+        window.addEventListener('resize', scrollToBottom);
+    </script>
     """, unsafe_allow_html=True)
     
     # Initialize session state variables
