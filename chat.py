@@ -911,51 +911,15 @@ def main():
                 conda_packages = " ".join(missing_packages).replace("PyMuPDF", "pymupdf")
                 st.code(f"conda install {conda_packages}", language="bash")
         
-        # Continue with the rest of the sidebar...
+        # Sidebar content
         st.title("Document Q&A")
             
-        # Tab selection
-        selected_tab = st.radio(
-            "Navigation", 
-            ["Chat", "Document Tools", "Settings"],
-            horizontal=True
-        )
-            
-        if selected_tab == "Chat":
-            # Main query interface already shown
-                
-            # Web search settings
-            st.subheader(
-                "Search Settings" 
-                if st.session_state.user_language == "en" 
-                else "Paramètres de Recherche"
-            )
-                
-            # Web search toggle
-            st.session_state.use_internet = st.checkbox(
-                "Enable web search" if st.session_state.user_language == "en" else "Activer la recherche web",
-                value=st.session_state.use_internet
-            )
-                
-            # Context display toggle
-            st.session_state.show_context = st.checkbox(
-                "Show retrieved context" if st.session_state.user_language == "en" else "Afficher le contexte récupéré",
-                value=st.session_state.show_context
-            )
-        
-        elif selected_tab == "Settings":
-            st.subheader(
-                "Language Settings" 
-                if st.session_state.user_language == "en" 
-                else "Paramètres de Langue"
-            )
-            
+        # Language settings
+        with st.expander("Language Settings", expanded=False):
             # Language selector
             lang_options = {
                 "en": "English",
                 "fr": "Français",
-                # "es": "Español",
-                #"de": "Deutsch"
             }
             
             selected_lang = st.selectbox(
@@ -971,69 +935,55 @@ def main():
                 st.rerun()
             
             # Translation options
-            with st.expander(
-                "Document Translation" if st.session_state.user_language == "en" else "Traduction de Document",
-                expanded=False
-            ):
-                st.session_state.translate_documents = st.checkbox(
-                    "Translate documents" if st.session_state.user_language == "en" else "Traduire les documents",
-                    value=st.session_state.translate_documents
-                )
-                
-                if st.session_state.translate_documents:
-                    target_lang_options = {
-                        "en": "English",
-                        "fr": "French",
-                        "es": "Spanish",
-                        "de": "German"
-                    }
-                    
-                    st.session_state.translation_target_language = st.selectbox(
-                        "Target language" if st.session_state.user_language == "en" else "Langue cible",
-                        options=list(target_lang_options.keys()),
-                        format_func=lambda x: target_lang_options[x],
-                        index=list(target_lang_options.keys()).index(st.session_state.translation_target_language),
-                        key="translation_target_lang"
-                    )
-            
-            # API keys section removed as requested
-            
-        # Document Management Section
-        st.subheader(
-            "Document Management" 
-            if st.session_state.user_language == "en" 
-            else "Gestion des Documents"
-        )
-        
-        # Information about uploading documents via chat
-        st.info(
-            "💡 Upload documents using the '+' button next to the chat input below." 
-            if st.session_state.user_language == "en" 
-            else "💡 Téléchargez des documents en utilisant le bouton '+' à côté de la zone de chat ci-dessous."
-        )
-        
-        # Tool tabs for different document features
-        if "uploaded_docs" in st.session_state and st.session_state.uploaded_docs:
-            st.subheader(
-                "Document Tools" 
-                if st.session_state.user_language == "en" 
-                else "Outils de Document"
+            st.divider()
+            st.session_state.translate_documents = st.checkbox(
+                "Translate documents" if st.session_state.user_language == "en" else "Traduire les documents",
+                value=st.session_state.translate_documents
             )
             
-            tool_tabs = st.tabs([
-                "Documents" if st.session_state.user_language == "en" else "Documents",
-                "Compare" if st.session_state.user_language == "en" else "Comparer",
-                "Annotate" if st.session_state.user_language == "en" else "Annoter"
-            ])
-            
-            with tool_tabs[0]:
-                # Display list of uploaded documents
-                st.write(
-                    "Uploaded Documents:" 
-                    if st.session_state.user_language == "en" 
-                    else "Documents Téléchargés:"
-                )
+            if st.session_state.translate_documents:
+                target_lang_options = {
+                    "en": "English",
+                    "fr": "French",
+                    "es": "Spanish",
+                    "de": "German"
+                }
                 
+                st.session_state.translation_target_language = st.selectbox(
+                    "Target language" if st.session_state.user_language == "en" else "Langue cible",
+                    options=list(target_lang_options.keys()),
+                    format_func=lambda x: target_lang_options[x],
+                    index=list(target_lang_options.keys()).index(st.session_state.translation_target_language),
+                    key="translation_target_lang"
+                )
+        
+        # Search settings
+        with st.expander("Search Settings", expanded=False):
+            # Web search toggle
+            st.session_state.use_internet = st.checkbox(
+                "Enable web search" if st.session_state.user_language == "en" else "Activer la recherche web",
+                value=st.session_state.use_internet
+            )
+            
+            # Context display toggle
+            st.session_state.show_context = st.checkbox(
+                "Show retrieved context" if st.session_state.user_language == "en" else "Afficher le contexte récupéré",
+                value=st.session_state.show_context
+            )
+            
+        # Document Management Section
+        with st.expander("Upload Documents", expanded=True):
+            # Information about uploading documents via chat
+            st.info(
+                "💡 Upload documents using the '+' button next to the chat input below." 
+                if st.session_state.user_language == "en" 
+                else "💡 Téléchargez des documents en utilisant le bouton '+' à côté de la zone de chat ci-dessous."
+            )
+        
+        # Document tools section with expanders instead of tabs
+        if "uploaded_docs" in st.session_state and st.session_state.uploaded_docs:
+            # Uploaded documents list
+            with st.expander("Uploaded Documents", expanded=True):
                 for doc_id, doc_info in st.session_state.uploaded_docs.items():
                     doc_name = doc_info.get("name", "Unknown document")
                     doc_time = doc_info.get("processed_time", "")
@@ -1063,11 +1013,13 @@ def main():
                     st.success("All documents cleared")
                     st.rerun()
             
-            with tool_tabs[1]:
+            # Document comparison functionality
+            with st.expander("Compare Documents", expanded=False):
                 # Render document comparison UI
                 render_document_comparison_ui()
             
-            with tool_tabs[2]:
+            # Document annotation functionality
+            with st.expander("Annotate Documents", expanded=False):
                 # PDF annotation UI
                 st.write(
                     "Select a PDF to annotate:" 
