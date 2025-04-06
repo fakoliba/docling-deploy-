@@ -1,0 +1,8 @@
+tesseract-ocr
+tesseract-ocr-all
+ghostscript
+poppler-utils
+libgl1-mesa-glx
+python3-opencv
+libtesseract-dev
+libleptonica-dev
